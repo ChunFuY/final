@@ -153,10 +153,10 @@ void decode(String str)
   }
 
   String dtemp = str.substring(3,9);
-  Serial.println(dTemp);
+  Serial.println(dtemp);
   data.f1 = dtemp.toFloat();
   dtemp = str.substring(9, 12);
-Serial.println(dTemp);
+Serial.println(dtemp);
   data.f2 = dtemp.toFloat();
   data.i =str.charAt(12);
     
