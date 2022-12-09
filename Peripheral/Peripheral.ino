@@ -4,6 +4,12 @@
 #include <SoftwareSerial.h>
 Adafruit_LSM303DLH_Mag_Unified mag = Adafruit_LSM303DLH_Mag_Unified(12345);
 
+//ultrasonic pins
+#define trigPin 6
+#define echoPin 5
+
+const int temp_input = A0;
+
 //left=1 middle=2 right=3
 const int IR1 =8;
 const int IR2 =9;
@@ -25,6 +31,19 @@ void setup() {
   pinMode(IR1, INPUT);
   pinMode(IR2, INPUT);
   pinMode(IR3, INPUT);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin,INPUT);  
+}
+
+float getTemp()
+{
+  int input = analogRead(temp_input);
+  float voltage = input * 5.0;
+  voltage /= 1024.0;
+  float temp = (voltage - 0.5) * 100;
+  return temp;
+  Serial.println(temp);
 }
 
 float getCompass()
@@ -45,7 +64,31 @@ float getCompass()
   //Serial.println(heading);
   return heading;
 }
+
+int getDistance()
+{
+  long duration, distance;
+  digitalWrite(trigPin,LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  //speed of sound = 331.6 + 0.6* tempurature
+  double speed = (getTemp() * 0.6 + 331.6) / 10000;
+  Serial.println(speed, 4);
+  distance = speed * duration / 2;
+  if(distance > 0 && distance < 150)
+  {
+    return distance;
+  }
+  else{
+    return 0;
+  }
+}
+
 bool isSend = false;
+
 void loop() {
   // put your main code here, to run repeatedly:
   int brightness = analogRead(A0);
@@ -53,21 +96,28 @@ void loop() {
   ir_array[0] = digitalRead(IR1);
   ir_array[1] = digitalRead(IR2);
   ir_array[2] = digitalRead(IR3);
+  float temp = getTemp();
   //Serial.println(brightness);
-  s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(), brightness));  
+  //Serial.println(getDistance());
+  int distance = getDistance();
+  s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(),temp, distance));  
   while( !ir_array[0] || !ir_array[1] || !ir_array[2])
   {
-        ir_array[0] = digitalRead(IR1);
+    ir_array[0] = digitalRead(IR1);
     ir_array[1] = digitalRead(IR2);
     ir_array[2] = digitalRead(IR3);
+    getCompass();
+    brightness = analogRead(A0);
+    temp = getTemp();
+    distance = getDistance();    
   }
-delay(200);
+delay(1000);
 
 
 }
 
 //ir1 ir2 ir3 compass photocell
-String encode(bool b1, bool b2, bool b3, float f, int i)
+String encode(bool b1, bool b2, bool b3, float f, float temperature, int distance)
 {
   String return_value = "";
   if(!b1 == true)
@@ -97,16 +147,15 @@ String encode(bool b1, bool b2, bool b3, float f, int i)
   String temp = String(f,2);
   return_value += temp;
 
-  if(i > 150)
-  {
-    return_value += '1';
-  }
-  else
-  {
-    return_value += '0';
-  }
+
+  temp = String(temperature, 1);
+  return_value += temp;
+  return_value += String(distance);
+
   return_value += '\n';
+  
+
   Serial.println(return_value);
   return return_value;
-
+  
 }

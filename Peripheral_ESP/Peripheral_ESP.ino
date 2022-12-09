@@ -10,11 +10,22 @@ const int Rx = D1;
 const int Tx = D2;
 SoftwareSerial s(Rx, Tx);
 int count = 0;
-typedef struct CameraData{
-  uint8_t by[4];
-}CameraData;
-CameraData Ctemp;
-  String sensorData;
+
+String sensorData;
+
+struct sData{
+  bool b1;
+  bool b2;
+  bool b3;
+// compasee
+  float f1;
+  //temp
+  float f2;  
+  int i;
+};
+
+sData data;
+
 uint8_t startByte;
 void setup() {
   //Wire.begin();
@@ -101,13 +112,56 @@ void loop() {
   }
   if(temp == '\n')
   {
-    esp_now_send(broadcastAddress,(uint8_t*) &sensorData, sizeof(sensorData));
+    esp_now_send(broadcastAddress,(uint8_t*) &data, sizeof(sData));
     //Serial.print(sensorData);
     sensorData = "";
     //Serial.println();
   }
   //Serial.println();
 }
+
+void decode(String str)
+{
+  char temp = str.charAt(0);
+  if(temp == '1')
+  {
+    data.b1 = true;
+  }
+  else
+  {
+    data.b1  = false;    
+  }
+
+  temp = str.charAt(1);
+  if(temp == '1')
+  {
+    data.b2 = true;
+  }
+  else
+  {
+    data.b2 = false;    
+  }
+
+  temp = str.charAt(2);
+  if(temp == '1')
+  {
+    data.b3= true;
+  }
+  else
+  {
+    data.b3  = false;    
+  }
+
+  String dtemp = str.substring(3,9);
+  Serial.println(dTemp);
+  data.f1 = dtemp.toFloat();
+  dtemp = str.substring(9, 12);
+Serial.println(dTemp);
+  data.f2 = dtemp.toFloat();
+  data.i =str.charAt(12);
+    
+}
+
 
 void requestEvent() {
 

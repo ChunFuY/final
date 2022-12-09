@@ -7,27 +7,33 @@ uint8_t broadcastAddress[] = {0x50,0x02,0x91,0xDC,0xE7,0x3E };
 const int Rx = D3;
 const int Tx = D4;
 SoftwareSerial s (Rx, Tx);
-typedef struct SensorData{
-  bool b;
-  float f;
-}SensorData;
+struct sData{
+  bool b1;
+  bool b2;
+  bool b3;
+// compasee
+  float f1;
+  //temp
+  float f2;  
+  int i;
+};
 
-SensorData receivedData;
+sData data;
+
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
-  Serial.print("Last Packet Send Status: ");
-  if (sendStatus == 0){
-    Serial.println("Delivery success");
-  }
-  else{
-    Serial.println("Delivery fail");
-  }
 }
 // Callback function that will be executed when data is received
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
-  String temp;
-  memcpy(&temp, incomingData, len);
-  Serial.println(temp);
-  s.println(temp);
+  memcpy(&data, incomingData, sizeof(sData));
+  Serial.print(data.f1);
+  Serial.print(" ");
+  Serial.print(data.f2);
+    Serial.print(" ");
+  Serial.print(data.i);
+  Serial.println();
+  s.print(encode(data.b1, data.b2, data.b3, data.f1, data.f2, data.i));
+  //Serial.println(temp);
+  //s.println(temp);
 }
  
 void setup() {
@@ -47,26 +53,47 @@ void setup() {
 }
 
 void loop() {
-  //sendmsg.str = "test";
-  //esp_now_send(broadcastAddress,(uint8_t*) &sendmsg, sizeof(sendmsg));
-  //delay(1000);
 }
 
-
-String encode(bool b, float i)
+String encode(bool b1, bool b2, bool b3, float f, float temperature, int distance)
 {
   String return_value = "";
-  if(b == true)
+  if(b1 == true)
   {
     return_value += '1'; 
   }
   else{
     return_value += '0';
   }
-  String temp = String(i,3);
+
+  if(b2 == true)
+  {
+    return_value += '1'; 
+  }
+  else{
+    return_value += '0';
+  }
+
+  if(b3 == true)
+  {
+    return_value += '1'; 
+  }
+  else{
+    return_value += '0';
+  }
+
+  String temp = String(f,2);
   return_value += temp;
+
+
+  temp = String(temperature, 1);
+  return_value += temp;
+  return_value += String(distance);
+
   return_value += '\n';
+  
+
   Serial.println(return_value);
   return return_value;
-
+  
 }

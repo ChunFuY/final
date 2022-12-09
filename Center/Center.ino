@@ -14,6 +14,8 @@ volatile bool IR1;
 volatile bool IR2;
 volatile bool IR3;
 volatile float compassData;
+float  temperature;
+int distance;
 bool photocell;
 
 void setup() {
@@ -172,15 +174,10 @@ void IR_conversion(bool b)
 
   String dtemp = d.substring(3,9);
   compassData = dtemp.toFloat();
-
-  temp = d.charAt(9);
-  if(temp == '1')
-  {
-    photocell = true;
-  }
-  else
-  {
-    photocell = false;    
-  }
+  dtemp = d.substring(9, 12);
+  temperature = dtemp.toFloat();
+  distance =d.charAt(12);  
 }
+
+
 
