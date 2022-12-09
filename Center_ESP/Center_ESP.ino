@@ -16,6 +16,7 @@ struct sData{
   //temp
   float f2;  
   int i;
+  bool running;
 };
 
 sData data;
@@ -25,13 +26,7 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
 // Callback function that will be executed when data is received
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&data, incomingData, sizeof(sData));
-  Serial.print(data.f1);
-  Serial.print(" ");
-  Serial.print(data.f2);
-    Serial.print(" ");
-  Serial.print(data.i);
-  Serial.println();
-  s.print(encode(data.b1, data.b2, data.b3, data.f1, data.f2, data.i));
+  s.print(encode(data.b1, data.b2, data.b3, data.f1, data.f2, data.i, data.running));
   //Serial.println(temp);
   //s.println(temp);
 }
@@ -55,7 +50,7 @@ void setup() {
 void loop() {
 }
 
-String encode(bool b1, bool b2, bool b3, float f, float temperature, int distance)
+String encode(bool b1, bool b2, bool b3, float f, float temperature, int distance, bool running)
 {
   String return_value = "";
   if(b1 == true)
@@ -88,8 +83,16 @@ String encode(bool b1, bool b2, bool b3, float f, float temperature, int distanc
 
   temp = String(temperature, 1);
   return_value += temp;
-  return_value += String(distance);
 
+  if(running)
+  {
+return_value += '1';
+  }
+  else
+  {
+    return_value += '0';
+  }
+  return_value += String(distance);
   return_value += '\n';
   
 

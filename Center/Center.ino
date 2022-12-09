@@ -14,6 +14,7 @@ volatile bool IR1;
 volatile bool IR2;
 volatile bool IR3;
 volatile float compassData;
+volatile bool isRunning;
 float  temperature;
 int distance;
 bool photocell;
@@ -48,6 +49,9 @@ void loop() {
   {
     Serial.println();
     decode(sensorData);
+    //Serial.println(sensorData);
+    bool temp = isRunning;
+    //Serial.println(isRunning);
     sensorData = "";
     /*
     sensorData = "";   
@@ -62,61 +66,61 @@ void loop() {
     Serial.print("Photocell Reading: ");
     photocell_conversion(photocell);
     */
-    rotate();
+    rotate(temp);
   }
 
 
 
 }
 
-void rotate()
+void rotate(bool temp)
 {
-  Serial.print("rotate");
+  if(!temp){
     if(IR1 || (IR1 && IR2))
     {
       Serial.println("test");
       motorCCW();
+      Serial.println(sensorData);
       motorCW();
     }
     else if(IR3 || (IR2 && IR3))
     {
-            Serial.println("test1");
+      Serial.println("test1");
       motorCW();   
+      Serial.println(sensorData);
       motorCCW(); 
     }
     else if(IR2)
     {
-            Serial.println("test2");
         //takepicture    
     }
     else //nothing
     {
-            Serial.println("test3");
       //takepicture
-    }
-  
-
+    
+    }  
+  }
 }
 
 void motorCW()
 {
     // step one revolution  in one direction:
-    Serial.println("clockwise");
+    //Serial.println("clockwise");
     CW = (stepsPerRevolution);
     myStepper.step(CW);
     delay(500);
-    Serial.println("at location A");
+    //Serial.println("at location A");
 
 }
 
 void motorCCW()
 {
   // step one revolution  in the other direction:
-    Serial.println("counterclockwise");
+    //Serial.println("counterclockwise");
     CCW = (-stepsPerRevolution);
     myStepper.step(CCW);
     delay(500);
-    Serial.println("at location B");
+    //Serial.println("at location B");
 }
 
 void photocell_conversion(bool b)
@@ -174,9 +178,20 @@ void IR_conversion(bool b)
 
   String dtemp = d.substring(3,9);
   compassData = dtemp.toFloat();
-  dtemp = d.substring(9, 12);
+  dtemp = d.substring(9, 13);
   temperature = dtemp.toFloat();
-  distance =d.charAt(12);  
+  if(d.charAt(13) == '1')
+  {
+isRunning = true;
+  }
+  else
+  {
+isRunning = false;    
+  }  
+  
+  dtemp = d.substring(14);
+  distance = dtemp.toInt();
+
 }
 
 

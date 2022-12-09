@@ -8,6 +8,7 @@ Adafruit_LSM303DLH_Mag_Unified mag = Adafruit_LSM303DLH_Mag_Unified(12345);
 #define trigPin 6
 #define echoPin 5
 
+//volatile bool isRunning;
 const int temp_input = A0;
 
 //left=1 middle=2 right=3
@@ -100,6 +101,7 @@ void loop() {
   //Serial.println(brightness);
   //Serial.println(getDistance());
   int distance = getDistance();
+  int count = 0;
   s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(),temp, distance));  
   while( !ir_array[0] || !ir_array[1] || !ir_array[2])
   {
@@ -109,8 +111,12 @@ void loop() {
     getCompass();
     brightness = analogRead(A0);
     temp = getTemp();
-    distance = getDistance();    
+    distance = getDistance();  
+      s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(),temp, distance));  
+     
+    delay(1000);  
   }
+
 delay(1000);
 
 
@@ -150,11 +156,20 @@ String encode(bool b1, bool b2, bool b3, float f, float temperature, int distanc
 
   temp = String(temperature, 1);
   return_value += temp;
+
+/*
+  if(running)
+  {
+    return_value += '1';
+  }
+  else
+  {
+    return_value += '0';
+  }
+*/  
+
   return_value += String(distance);
-
   return_value += '\n';
-  
-
   Serial.println(return_value);
   return return_value;
   

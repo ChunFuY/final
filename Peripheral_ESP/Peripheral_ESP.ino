@@ -3,6 +3,7 @@
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <espnow.h>
+#include <String>
 uint8_t broadcastAddress[] = {0x38,0x2B,0x78,0x03,0x83,0x8B};
 //const int Rx = 2;
 //const int Tx = 3;
@@ -22,6 +23,7 @@ struct sData{
   //temp
   float f2;  
   int i;
+  //bool running;
 };
 
 sData data;
@@ -36,7 +38,7 @@ void setup() {
   //Wire.onReceive(receiveEvent);
   */
   s.begin(57600);
-  Serial.begin(921600);
+  Serial.begin(115200);
   //while (!Serial)
   //  ;
   while (!s)
@@ -112,8 +114,9 @@ void loop() {
   }
   if(temp == '\n')
   {
+    decode(sensorData);
     esp_now_send(broadcastAddress,(uint8_t*) &data, sizeof(sData));
-    //Serial.print(sensorData);
+    Serial.println(sensorData);
     sensorData = "";
     //Serial.println();
   }
@@ -155,11 +158,21 @@ void decode(String str)
   String dtemp = str.substring(3,9);
   Serial.println(dtemp);
   data.f1 = dtemp.toFloat();
-  dtemp = str.substring(9, 12);
+  dtemp = str.substring(9, 13);
 Serial.println(dtemp);
   data.f2 = dtemp.toFloat();
-  data.i =str.charAt(12);
-    
+  //data.i = (int)str.charAt(13) - 48;
+  if(str.charAt(13) == '1')
+  {
+    data.running = true;
+    }
+    else {
+    data.running = false;
+  }
+dtemp = str.substring(14);
+
+  data.i = dtemp.toInt();
+ 
 }
 
 
