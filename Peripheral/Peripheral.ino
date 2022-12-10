@@ -44,7 +44,7 @@ float getTemp()
   voltage /= 1024.0;
   float temp = (voltage - 0.5) * 100;
   return temp;
-  Serial.println(temp);
+  //Serial.println(temp);
 }
 
 float getCompass()
@@ -77,7 +77,7 @@ int getDistance()
   duration = pulseIn(echoPin, HIGH);
   //speed of sound = 331.6 + 0.6* tempurature
   double speed = (getTemp() * 0.6 + 331.6) / 10000;
-  Serial.println(speed, 4);
+  //Serial.println(speed, 4);
   distance = speed * duration / 2;
   if(distance > 0 && distance < 150)
   {
@@ -112,12 +112,13 @@ void loop() {
     brightness = analogRead(A0);
     temp = getTemp();
     distance = getDistance();  
-      s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(),temp, distance));  
+
      
     delay(1000);  
+    s.print(encode(ir_array[0], ir_array[1], ir_array[2], getCompass(),temp, distance));  
   }
 
-delay(1000);
+delay(100);
 
 
 }

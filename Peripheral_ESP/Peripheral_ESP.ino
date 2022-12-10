@@ -162,6 +162,7 @@ void decode(String str)
 Serial.println(dtemp);
   data.f2 = dtemp.toFloat();
   //data.i = (int)str.charAt(13) - 48;
+  /*
   if(str.charAt(13) == '1')
   {
     data.running = true;
@@ -169,10 +170,11 @@ Serial.println(dtemp);
     else {
     data.running = false;
   }
-dtemp = str.substring(14);
+*/  
+dtemp = str.substring(13);
 
   data.i = dtemp.toInt();
- 
+ Serial.println(data.i);
 }
 
 
